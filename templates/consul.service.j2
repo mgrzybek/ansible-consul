@@ -1,0 +1,23 @@
+# {{ ansible_managed }}
+[Unit]
+Description=consul server service
+Documentation=http://www.consul.io
+After=network.target
+
+[Service]
+EnvironmentFile={{ consul_sysconfig }}
+
+Environment=GOMAXPROCS=2
+{% if consul_consul_version == '1.1.0' %}
+Environment=CONSUL_UI_BETA=true
+{% endif %}
+
+Restart=on-failure
+KillSignal=SIGTERM
+
+ExecStart=/usr/local/bin/consul agent $OPTIONS -data-dir=/var/lib/consul -config-dir=/etc/consul.d
+ExecReload=/usr/local/bin/consul reload
+
+[Install]
+WantedBy=multi-user.target
+

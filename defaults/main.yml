@@ -1,0 +1,46 @@
+---
+
+consul_http_proxy: ""
+consul_https_proxy: "{{ consul_http_proxy }}"
+consul_package_state: present # latest
+consul_consul_version: 1.4.0
+consul_consul_version_ent: false
+consul_consul_repo_url: https://releases.hashicorp.com/consul
+consul_consul_bin_zip_url: "{{ consul_consul_repo_url }}/{{ consul_consul_version }}/consul_{{ consul_consul_version }}_linux_amd64.zip"
+
+# Packaging
+cache_timeout: 600
+
+consul_server_mode: false
+consul_consul_bootstrap_expect:
+consul_consul_cluster:
+
+consul_bind_address: "{{ ansible_default_ipv4.address }}"
+
+consul_advertise_wan:
+
+consul_config_telegraf: false
+
+consul_enable_acl: false
+consul_acl_default_policy: deny
+consul_acl_down_policy: extend-cache
+
+consul_dns_port: 8600
+consul_recursors: []
+
+consul_consul_rules:
+    - Name: "Agent Token"
+      Type: "client"
+      Rules: "node \"\" { policy = \"write\" } service \"\" { policy = \"read\" }"
+
+    - ID: "anonymous"
+      Type: "client"
+      Rules: "node \"\" { policy = \"read\" }"
+
+consul_consul_encrypt:
+consul_cloud_join: []
+
+consul_consul_ui: true
+
+consul_disable_update_check: true
+consul_disable_remote_exec: true

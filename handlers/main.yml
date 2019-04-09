@@ -1,0 +1,11 @@
+---
+
+- name: restart consul
+  service: name=consul state=restarted enabled=yes
+
+- name: reload systemd
+  shell: systemctl daemon-reload
+
+- name: restart telegraf
+  service: name=telegraf state=restarted 
+  when: telegraf_service.stdout.find('inactive') < 0

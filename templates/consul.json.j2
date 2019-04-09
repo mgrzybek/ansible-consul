@@ -1,0 +1,14 @@
+{
+{% if consul_enable_acl == true %}
+	"acl_datacenter": "{{ consul_datacenter }}",
+	"acl_default_policy": "{{ consul_acl_default_policy }}",
+	"acl_down_policy": "{{ consul_acl_down_policy }}",
+	"acl_master_token": "{{ consul_uuid }}",
+{% endif %}
+{% if consul_cloud_join | length > 0 %}
+	"retry_join" : ["{{ consul_cloud_join | join(' ') }}"],
+{% endif %}
+	"encrypt": "{{ consul_encrypt }}",
+	"disable_remote_exec": {{ consul_disable_remote_exec | lower }},
+	"disable_update_check": {{ consul_disable_update_check | lower }}
+}

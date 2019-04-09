@@ -1,0 +1,68 @@
+# {{ ansible_managed }}
+
+{% set _bind='-bind=%s' % consul_bind_address %}
+{% set _options = ['-syslog', _bind ] %}
+{% set _ = _options.append('-enable-script-checks') %}
+
+{% if consul_server_mode | lower == 'true' %}
+	{% set _ = _options.append('-server') %}
+	
+	{% if consul_consul_ui | lower == 'true' %}
+	    {% set _ = _options.append('-ui') %}
+	{% endif %}
+	
+	{% if consul_consul_bootstrap_expect != None %}
+		{% set _ = _options.append('-bootstrap-expect') %}
+		{% set _ = _options.append(consul_consul_bootstrap_expect) %}
+	{% else %}
+
+		{% if play_hosts | length > 1 %}
+			{% set _ = _options.append('-retry-join') %}
+
+			{% if consul_consul_cluster != None %}
+				{% set _ = _options.append(consul_consul_cluster) %}
+			{% else %}
+				{% set _ = _options.append(hostvars[play_hosts[0]]['ansible_fqdn']) %}
+			{% endif %}
+		{% else %}
+				{% set _ = _options.append('-bootstrap') %}
+		{% endif %}
+    {% endif %}
+{% else %}
+    {% set _ = _options.append('-retry-join') %}
+    {% set _ = _options.append(consul_consul_cluster) %}
+{% endif %}
+
+{% if consul_consul_ui | lower == 'true' %}
+    {% set _ = _options.append('-ui') %}
+{% endif %}
+
+{% if consul_dns_domain is defined %}
+    {% set _ = _options.append('-domain') %}
+    {% set _ = _options.append(consul_dns_domain) %}
+{% endif %}
+
+{% if consul_datacenter is defined %}
+    {% set _ = _options.append('-datacenter') %}
+    {% set _ = _options.append(consul_datacenter) %}
+{% endif %}
+
+{% if consul_advertise_wan != None %}
+	{% if consul_advertise_wan | length > 0 %}
+		{% set _ = _options.append('-advertise-wan') %}
+		{% set _ = _options.append(consul_advertise_wan) %}
+	{% endif %}
+{% endif %}
+
+{% if consul_dns_port != None %}
+		{% set _ = _options.append('-dns-port') %}
+		{% set _ = _options.append(consul_dns_port) %}
+{% endif %}
+
+{% for item in consul_recursors %}
+	{% set _ = _options.append('-recursor=' + item) %}
+{% endfor %}
+
+{% set _ = _options.append('-config-file=/etc/consul.json') %}
+
+OPTIONS="{{ _options | join(' ') }}"
