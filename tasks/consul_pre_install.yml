@@ -97,7 +97,7 @@
   shell: systemctl is-active telegraf 2>/dev/null || echo ko && exit 0
 
 - when:
-    - telegraf_service.stdout.find('active') > -1
+    - telegraf_service.stdout.find('ko') < 0
     - consul_config_telegraf | lower == 'true' 
   set_fact:
     configure_telegraf: true
