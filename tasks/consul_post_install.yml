@@ -1,0 +1,55 @@
+---
+
+- name: Generate gossip encryption key
+  when: consul_encrypt is not defined
+  run_once: true
+  block:
+    - name:  Generate keygen
+      command: /usr/local/bin/consul keygen
+      register: consul_keygen
+
+    - set_fact: consul_encrypt="{{ consul_keygen.stdout }}"
+
+- name: Sysconfig
+  template: src=consul.sysconfig.j2 dest={{ consul_sysconfig }} mode=600
+  notify: restart consul
+
+- name: Consul configuration file
+  template: src=consul.json.j2 dest=/etc/consul.json mode=600
+  notify: restart consul
+
+- name: Telegraf configuration
+  template: src=consul.telegraf.conf.j2 dest=/etc/telegraf/telegraf.d/consul.conf
+  notify: restart telegraf
+  when: consul_config_telegraf == true
+
+- name: Kernel capabilities
+  when:
+    - install_consul == true
+    - consul_dns_port < 1024
+  command: setcap cap_net_bind_service=+ep /usr/local/bin/consul
+
+- meta: flush_handlers
+
+- name: ACLs post-configuration
+  when: consul_enable_acl == true
+  run_once: true
+  block:
+    - name: Wait for Consul to be online
+      wait_for: port=8500 timeout=20
+
+    - name: Create some rules
+      template: src=rule.json.j2 dest=/tmp/rule.json
+
+    - name: Apply rule
+      uri:
+        url: http://127.0.0.1:8500/v1/acl/create?token={{ consul_uuid }}
+        method: PUT
+        body: "{{ consul_consul_rules | to_json }}"
+        body_format: json
+
+    - name: Clean-up
+      file: path=/tmp/rule.json state=absent
+
+- name: Autostart consul
+  service: name=consul state=started enabled=yes
