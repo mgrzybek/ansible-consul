@@ -97,6 +97,6 @@
 
 - when:
     - telegraf_service.stdout.find('ko') < 0
-    - consul_config_telegraf | lower == 'true' 
+    - consul_config_telegraf | lower == 'true'
   set_fact:
     configure_telegraf: true
