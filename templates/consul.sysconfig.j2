@@ -63,6 +63,22 @@
 	{% set _ = _options.append('-recursor=' + item) %}
 {% endfor %}
 
+{% if consul_bind != None %}
+	{% set _ = _options.append('-bind=' + consul_bind) %}
+{% endif %}
+
+{% if consul_serf_wan_bind != None %}
+	{% set _ = _options.append('-bind=' + consul_serf_wan_bind) %}
+{% endif %}
+
+{% if consul_serf_lan_bind != None %}
+	{% set _ = _options.append('-bind=' + consul_serf_lan_bind) %}
+{% endif %}
+
+{% if consul_client_bind != None %}
+	{% set _ = _options.append('-bind=' + consul_client_bind) %}
+{% endif %}
+
 {% set _ = _options.append('-config-file=/etc/consul.json') %}
 
 OPTIONS="{{ _options | join(' ') }}"

@@ -44,3 +44,8 @@ consul_consul_ui: true
 
 consul_disable_update_check: true
 consul_disable_remote_exec: true
+
+consul_bind:
+consul_serf_wan_bind:
+consul_serf_lan_bind:
+consul_client_bind:
