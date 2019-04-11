@@ -55,7 +55,6 @@
   when:
     - consul_package_state == 'present'
     - consul_bin_version.stdout | default('') != consul_consul_version or not consul_bin_version is defined
-    #- consul_consul_encrypt == None or consul_consul_encrypt | length == 0
   set_fact:
     version_to_install: "{{ consul_consul_version }}"
     install_consul: true
