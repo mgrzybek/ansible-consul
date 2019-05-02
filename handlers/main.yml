@@ -7,5 +7,5 @@
   shell: systemctl daemon-reload
 
 - name: restart telegraf
-  service: name=telegraf state=restarted 
+  service: name=telegraf state=restarted
   when: telegraf_service.stdout.find('inactive') < 0
