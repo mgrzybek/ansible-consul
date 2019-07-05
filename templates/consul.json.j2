@@ -8,6 +8,12 @@
 {% if consul_cloud_join | length > 0 %}
 	"retry_join" : ["{{ consul_cloud_join | join(' ') }}"],
 {% endif %}
+{% if configure_telegraf == true %}
+	"telemetry": {
+		"dogstatsd_addr": "127.0.0.1:8125",
+		"disable_hostname": true
+	}
+{% endif %}
 	"encrypt": "{{ consul_encrypt }}",
 	"disable_remote_exec": {{ consul_disable_remote_exec | lower }},
 	"disable_update_check": {{ consul_disable_update_check | lower }}
