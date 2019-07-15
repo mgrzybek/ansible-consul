@@ -22,6 +22,10 @@
   when: install_consul == true
   block:
     - name: Get binary ({{ version_to_install }})
+      register: get_binary
+      until: get_binary is success
+      retries: 5
+      delay: 10
       get_url:
         url: "{{ consul_consul_repo_url }}/{{ version_to_install }}/consul_{{ version_to_install }}_linux_amd64.zip"
         dest: "/tmp/consul_bin.zip"
