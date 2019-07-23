@@ -42,3 +42,4 @@ consul_serf_lan_bind:
 consul_client_bind:
 
 consul_show_master_token: true
+consul_datacenter: dc1
