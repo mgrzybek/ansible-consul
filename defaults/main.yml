@@ -28,15 +28,6 @@ consul_acl_down_policy: extend-cache
 consul_dns_port: 8600
 consul_recursors: []
 
-consul_consul_rules:
-    - Name: "Agent Token"
-      Type: "client"
-      Rules: "node \"\" { policy = \"write\" } service \"\" { policy = \"read\" }"
-
-    - ID: "anonymous"
-      Type: "client"
-      Rules: "node \"\" { policy = \"read\" }"
-
 consul_consul_encrypt:
 consul_cloud_join: []
 
@@ -49,3 +40,5 @@ consul_bind:
 consul_serf_wan_bind:
 consul_serf_lan_bind:
 consul_client_bind:
+
+consul_show_master_token: true

@@ -15,7 +15,7 @@
   notify: restart consul
 
 - name: Consul configuration file
-  template: src=consul.json.j2 dest=/etc/consul.json mode=600
+  template: src=consul.hcl.j2 dest=/etc/consul.hcl mode=600
   notify: restart consul
 
 - name: Telegraf configuration
@@ -33,24 +33,47 @@
 - meta: flush_handlers
 
 - name: ACLs post-configuration
-  when: consul_enable_acl == true
+  when:
+    - consul_enable_acl == true
+    - consul_server_mode | lower == 'true'
   run_once: true
   block:
     - name: Wait for Consul to be online
       wait_for: port=8500 timeout=20
 
-    - name: Create some rules
-      template: src=rule.json.j2 dest=/tmp/rule.json
+    - name: Wait for consul quorum
+      until: catalog_info is success
+      retries: 300
+      delay: 10
+      register: catalog_info
+      command: consul catalog services
 
-    - name: Apply rule
-      uri:
-        url: http://127.0.0.1:8500/v1/acl/create?token={{ consul_uuid }}
-        method: PUT
-        body: "{{ consul_consul_rules | to_json }}"
-        body_format: json
+    - name: Bootstrap ACL
+      until: acl_info is success
+      retries: 5
+      delay: 2
+      register: acl_info
+      command: consul acl bootstrap
+
+    - name: Set acl facts
+      set_fact:
+        acl_secret_id: "{{ acl_info.stdout_lines[1] | regex_replace('^.+:\\s+','') }}"
+
+    - name: Create some rules
+      template: src=policy.hcl.j2 dest=/tmp/policy.hcl
+
+    - name: Apply the rules
+      command: consul acl policy create -name "nodes" -rules @/tmp/policy.hcl
+      environment:
+        CONSUL_HTTP_TOKEN: "{{ acl_secret_id }}"
 
     - name: Clean-up
-      file: path=/tmp/rule.json state=absent
+      file: path=/tmp/policy.hcl state=absent
 
 - name: Autostart consul
   service: name=consul state=started enabled=yes
+
+- name: Show master token
+  run_once: true
+  when: consul_show_master_token | lower =='true' 
+  debug: var=acl_secret_id

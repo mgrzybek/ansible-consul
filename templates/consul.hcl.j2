@@ -1,0 +1,31 @@
+ 
+datacenter = "{{ consul_datacenter }}"
+data_dir   = "/var/lib/consul"
+encrypt    = "{{ consul_encrypt }}"
+
+disable_remote_exec = {{ consul_disable_remote_exec | lower }}
+disable_update_check = {{ consul_disable_update_check | lower }}
+
+{% if consul_cloud_join | length > 0 %}
+retry_join = ["{{ consul_cloud_join | join(' ') }}"]
+{% endif %}
+
+performance = {
+	raft_multiplier = 1
+}
+
+{% if configure_telegraf == true %}
+telemetry = {
+	dogstatsd_addr = "127.0.0.1:8125"
+	disable_hostname = true
+}
+{% endif %}
+
+{% if consul_enable_acl == true %}
+acl = {
+	enabled        = true,
+	default_policy = "{{ consul_acl_default_policy }}"
+	down_policy    = "{{ consul_acl_down_policy }}"
+	enable_token_persistence = true
+}
+{% endif %}

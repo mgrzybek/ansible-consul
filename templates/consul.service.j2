@@ -8,15 +8,16 @@ After=network.target
 EnvironmentFile={{ consul_sysconfig }}
 
 Environment=GOMAXPROCS=2
-{% if consul_consul_version == '1.1.0' %}
-Environment=CONSUL_UI_BETA=true
-{% endif %}
 
 Restart=on-failure
 KillSignal=SIGTERM
 
 ExecStart=/usr/local/bin/consul agent $OPTIONS -data-dir=/var/lib/consul -config-dir=/etc/consul.d
 ExecReload=/usr/local/bin/consul reload
+
+KillMode=process
+Restart=on-failure
+LimitNOFILE=65536
 
 [Install]
 WantedBy=multi-user.target

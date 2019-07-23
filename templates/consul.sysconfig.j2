@@ -79,6 +79,6 @@
 	{% set _ = _options.append('-bind=' + consul_client_bind) %}
 {% endif %}
 
-{% set _ = _options.append('-config-file=/etc/consul.json') %}
+{% set _ = _options.append('-config-file=/etc/consul.hcl') %}
 
 OPTIONS="{{ _options | join(' ') }}"
