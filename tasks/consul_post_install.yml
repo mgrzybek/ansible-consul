@@ -49,31 +49,36 @@
       command: consul catalog services
 
     - name: Bootstrap ACL
-      until: acl_info is success
+      until: acl_info is success or acl_info.stdout.find("no longer") > -1
       retries: 5
       delay: 2
       register: acl_info
       command: consul acl bootstrap
 
-    - name: Set acl facts
-      set_fact:
-        acl_secret_id: "{{ acl_info.stdout_lines[1] | regex_replace('^.+:\\s+','') }}"
+    - name: ACL not set
+      when: acl_info.stdout.find("no longer") < 0
+      block:
+        - name: Set acl facts
+          set_fact:
+            acl_secret_id: "{{ acl_info.stdout_lines[1] | regex_replace('^.+:\\s+','') }}"
 
-    - name: Create some rules
-      template: src=policy.hcl.j2 dest=/tmp/policy.hcl
+        - name: Create some rules
+          template: src=policy.hcl.j2 dest=/tmp/policy.hcl
 
-    - name: Apply the rules
-      command: consul acl policy create -name "nodes" -rules @/tmp/policy.hcl
-      environment:
-        CONSUL_HTTP_TOKEN: "{{ acl_secret_id }}"
+        - name: Apply the rules
+          command: consul acl policy create -name "nodes" -rules @/tmp/policy.hcl
+          environment:
+            CONSUL_HTTP_TOKEN: "{{ acl_secret_id }}"
 
-    - name: Clean-up
-      file: path=/tmp/policy.hcl state=absent
+        - name: Clean-up
+          file: path=/tmp/policy.hcl state=absent
 
 - name: Autostart consul
   service: name=consul state=started enabled=yes
 
 - name: Show master token
   run_once: true
-  when: consul_show_master_token | lower =='true' 
+  when:
+    - consul_show_master_token | lower =='true' 
+    - acl_info.stdout.find("no longer") < 0
   debug: var=acl_secret_id
