@@ -27,5 +27,14 @@ acl = {
 	default_policy = "{{ consul_acl_default_policy }}"
 	down_policy    = "{{ consul_acl_down_policy }}"
 	enable_token_persistence = true
+	
+	tokens = {
+{% if consul_acl_tokens_agent | length > 0 %}
+		agent = "{{ consul_acl_tokens_agent }}"
+{% endif %}
+{% if consul_acl_tokens_agent | length > 0 %}
+		default = "{{ consul_acl_tokens_default }}"
+{% endif %}
+	}
 }
 {% endif %}
