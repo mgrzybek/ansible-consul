@@ -24,6 +24,10 @@ consul_config_telegraf: false
 consul_enable_acl: false
 consul_acl_default_policy: deny
 consul_acl_down_policy: extend-cache
+consul_acl_tokens_agent:
+consul_acl_tokens_default:
+consul_acl_tokens_master:
+consul_acl_create_env_file: true
 
 consul_dns_port: 8600
 consul_recursors: []
