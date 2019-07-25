@@ -24,6 +24,8 @@
 - name: ACL info
   run_once: true
   block:
+    # TODO: use HCL file instead
+    # TODO: check that this is not deprecated
     - name: Get existing consul uuid in config file (acl stuff)
       register: consul_json
       shell: >
@@ -41,6 +43,7 @@
 - name: Encrypt info
   run_once: true
   block:
+    # TODO: use HCL file instead
     - name: Get existing consul encrypt in config file (acl stuff)
       register: consul_json
       shell: >
