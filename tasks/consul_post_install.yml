@@ -73,19 +73,20 @@
         - name: Clean-up
           file: path=/tmp/policy.hcl state=absent
 
+    - name: Show master token
+      run_once: true
+      when:
+        - consul_show_master_token | lower =='true' 
+        - acl_info.stdout.find("no longer") < 0
+      debug: var=acl_secret_id
+
 - name: Autostart consul
   service: name=consul state=started enabled=yes
-
-- name: Show master token
-  run_once: true
-  when:
-    - consul_show_master_token | lower =='true' 
-    - acl_info.stdout.find("no longer") < 0
-  debug: var=acl_secret_id
 
 # TODO: set a local fact in pre_install to manage this
 - name: Create an env file containing the token
   when:
+    - consul_acl_tokens_master != None
     - consul_acl_tokens_master | length > 0
     - consul_acl_create_env_file | lower == 'true'
   block:
