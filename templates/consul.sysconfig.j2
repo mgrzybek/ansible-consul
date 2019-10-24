@@ -81,4 +81,13 @@
 
 {% set _ = _options.append('-config-file=/etc/consul.hcl') %}
 
+{% if consul_http_proxy is defined and consul_http_proxy | length > 0 %}
+HTTP_PROXY=
+{% endif %}
+{% if consul_https_proxy is defined and consul_https_proxy | length > 0 %}
+HTTPS_PROXY=
+{% endif %}
+{% if consul_http_no_proxy is defined and consul_http_no_proxy | length > 0 %}
+NO_PROXY=
+{% endif %}
 OPTIONS="{{ _options | join(' ') }}"

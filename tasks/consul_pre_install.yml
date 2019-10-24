@@ -5,9 +5,30 @@
 #    - consul_dns_port != None
 #    - consul_dns_port | number == false
 
+- name: Test HTTP Proxy
+  when: consul_http_proxy is defined and consul_http_proxy | length > 0
+  block:
+      - name: Test proxy {{ consul_http_proxy }} (http)
+        uri: url={{ consul_http_proxy }} method=GET status_code=400
+  
+      - name: Test proxy {{ consul_http_proxy }} (https)
+        when: consul_http_proxy != consul_https_proxy
+        uri: url={{ consul_https_proxy }} method=GET status_code=400
+
+- fail: msg="Openstack credencials must be present"
+  when: (lookup('env', 'OS_USERNAME') is undefined
+    or lookup('env', 'OS_PASSWORD') is undefined
+    or lookup('env', 'OS_AUTH_URL') is undefined
+    or lookup('env', 'OS_PROJECT_ID') is undefined
+    or lookup('env', 'OS_USER_DOMAIN_NAME') is undefined)
+    and consul_acl_token_store_swift | lower == 'true'
+    and consul_enable_acl | lower == 'true'
+
 - set_fact:
     install_consul: false
     configure_telegraf: false
+    write_consul_env_file: false
+    consul_acl_token_store_swift: false
 
 - name: Check consul
   stat: path={{ consul_install_prefix }}/consul get_checksum=no
@@ -103,3 +124,22 @@
     - consul_config_telegraf | lower == 'true'
   set_fact:
     configure_telegraf: true
+
+- name: Set ACLs facts
+  when:
+    - consul_enable_acl | lower == 'true'
+  block:
+    - name: Set local fact (create an env file containing the token)
+      when:
+        - consul_acl_token_store_env_file | lower == 'true'
+      set_fact: write_consul_env_file=true
+
+    - name: Set local fact (create a swift object containing the token)
+      when:
+        - consul_acl_token_store_swift | lower == 'true'
+        - lookup('env', 'OS_USERNAME') is defined
+        - lookup('env', 'OS_PASSWORD') is defined
+        - lookup('env', 'OS_AUTH_URL') is defined
+        - lookup('env', 'OS_PROJECT_ID') is defined
+        - lookup('env', 'OS_USER_DOMAIN_NAME') is defined
+      set_fact: consul_acl_token_store_swift=true
