@@ -88,6 +88,6 @@ HTTP_PROXY={{ consul_http_proxy }}
 HTTPS_PROXY={{ consul_https_proxy }}
 {% endif %}
 {% if consul_http_no_proxy is defined and consul_http_no_proxy | length > 0 %}
-NO_PROXY={{ consul_http_no_proxy }}
+NO_PROXY={{ consul_http_no_proxy }},0.0.0.0,127.0.0.1,::1
 {% endif %}
 OPTIONS="{{ _options | join(' ') }}"
