@@ -13,7 +13,7 @@
   
       - name: Test proxy {{ consul_http_proxy }} (https)
         when: consul_http_proxy != consul_https_proxy
-        uri: url={{ consul_https_proxy }} method=GET status_code=400
+        uri: url={{ consul_https_proxy }} method=GET status_code=400,403
 
 - fail: msg="Openstack credencials must be present"
   when: (lookup('env', 'OS_USERNAME') is undefined
