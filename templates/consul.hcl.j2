@@ -29,10 +29,10 @@ acl = {
 	enable_token_persistence = true
 	
 	tokens = {
-{% if consul_acl_tokens_agent | length > 0 %}
+{% if consul_acl_tokens_agent != None and consul_acl_tokens_agent | length > 0 %}
 		agent = "{{ consul_acl_tokens_agent }}"
 {% endif %}
-{% if consul_acl_tokens_agent | length > 0 %}
+{% if consul_acl_tokens_agent != None and consul_acl_tokens_agent | length > 0 %}
 		default = "{{ consul_acl_tokens_default }}"
 {% endif %}
 	}

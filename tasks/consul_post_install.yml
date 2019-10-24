@@ -42,7 +42,8 @@
       wait_for: port=8500 timeout=20
 
     - name: Wait for consul quorum
-      until: catalog_info is success
+      until: catalog_info.stderr.find('403') > -1
+      ignore_errors: yes
       retries: 300
       delay: 10
       register: catalog_info
@@ -66,38 +67,19 @@
           template: src=policy.hcl.j2 dest=/tmp/policy.hcl
 
         - name: Apply the rules
-          command: consul acl policy create -name "nodes" -rules @/tmp/policy.hcl
+          command: >
+              consul acl policy create \
+                  -name "nodes" \
+                  -description="Policy used by nodes" \
+                  -rules @/tmp/policy.hcl
           environment:
             CONSUL_HTTP_TOKEN: "{{ acl_secret_id }}"
 
         - name: Clean-up
           file: path=/tmp/policy.hcl state=absent
-
-    - name: Show master token
-      run_once: true
-      when:
-        - consul_show_master_token | lower =='true' 
-        - acl_info.stdout.find("no longer") < 0
-      debug: var=acl_secret_id
+          
+        - name: Store token
+          import_tasks: consul_post_install_token.yml
 
 - name: Autostart consul
   service: name=consul state=started enabled=yes
-
-# TODO: set a local fact in pre_install to manage this
-- name: Create an env file containing the token
-  when:
-    - consul_acl_tokens_master != None
-    - consul_acl_tokens_master | length > 0
-    - consul_acl_create_env_file | lower == 'true'
-  block:
-    - name: Create .consul.env
-      file:
-        path: "{{ lookup('env', 'HOME') }}/.consul.env"
-        state: touch
-
-    - name: Create an env file containing the token
-      lineinfile:
-        path: "{{ lookup('env', 'HOME') }}/.consul.env"
-        state: present
-        regexp: "^$"
-        line: "CONSUL_HTTP_TOKEN={{ consul_acl_tokens_master }}"
