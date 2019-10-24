@@ -3,7 +3,7 @@
 consul_http_proxy: ""
 consul_https_proxy: "{{ consul_http_proxy }}"
 consul_package_state: present # latest
-consul_consul_version: 1.5.2
+consul_consul_version: 1.6.1
 consul_consul_version_ent: false
 consul_consul_repo_url: https://releases.hashicorp.com/consul
 consul_consul_bin_zip_url: "{{ consul_consul_repo_url }}/{{ consul_consul_version }}/consul_{{ consul_consul_version }}_linux_amd64.zip"
@@ -22,12 +22,16 @@ consul_advertise_wan:
 consul_config_telegraf: false
 
 consul_enable_acl: false
+
 consul_acl_default_policy: deny
 consul_acl_down_policy: extend-cache
+
 consul_acl_tokens_agent:
 consul_acl_tokens_default:
 consul_acl_tokens_master:
-consul_acl_create_env_file: true
+
+consul_acl_token_store_env_file: true
+consul_acl_token_store_swift: false
 
 consul_dns_port: 8600
 consul_recursors: []
