@@ -9,7 +9,7 @@
   when: consul_http_proxy is defined and consul_http_proxy | length > 0
   block:
       - name: Test proxy {{ consul_http_proxy }} (http)
-        uri: url={{ consul_http_proxy }} method=GET status_code=400
+        uri: url={{ consul_http_proxy }} method=GET status_code=400,403
   
       - name: Test proxy {{ consul_http_proxy }} (https)
         when: consul_http_proxy != consul_https_proxy
