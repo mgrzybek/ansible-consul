@@ -1,12 +1,59 @@
- 
+# {{ ansible_managed }}
+
 datacenter = "{{ consul_datacenter }}"
 data_dir   = "/var/lib/consul"
 encrypt    = "{{ consul_encrypt }}"
 
-disable_remote_exec = {{ consul_disable_remote_exec | lower }}
+disable_remote_exec  = {{ consul_disable_remote_exec | lower }}
 disable_update_check = {{ consul_disable_update_check | lower }}
+enable_script_checks = true
+
+{% if consul_server_mode | lower == 'true' %}
+{% if consul_consul_bootstrap_expect != None and consul_consul_bootstrap_expect > 0 %}
+bootstrap_expect = {{ consul_consul_bootstrap_expect }}
+{% endif %}
+{% endif %}
+
+{% if consul_consul_ui | lower == 'true' %}
+ui = true
+{% endif %}
+
+{% if consul_dns_domain is defined %}
+domain = "{{ consul_dns_domain }}"
+{% endif %}
+
+ports = {
+{% if consul_dns_port != None %}
+	dns = {{ consul_dns_port }}
+{% endif %}
+}
+
+{% for item in consul_recursors %}
+recursors = {{ consul_recursors | join(' ') }}
+{% endfor %}
+
+# Bindings
+{% if consul_client_addr != None %}
+client_addr = "{{ consul_client_addr | join(' ') }}"
+{% endif %}
+{% if consul_advertise_addr != None %}
+advertise_addr = "{{ consul_advertise_addr }}"
+{% endif %}
+{% if consul_advertise_addr_wan != None %}
+advertise_addr_wan = "{{ consul_advertise_addr_wan }}"
+{% endif %}
+{% if consul_bind != None %}
+bind_addr     = "{{ consul_bind }}"
+{% endif %}
+{% if consul_serf_wan_bind != None %}
+serf_wan      = "{{ consul_serf_wan_bind }}"
+{% endif %}
+{% if consul_serf_lan_bind != None %}
+serf_lan      = "{{ consul_serf_lan_bind }}"
+{% endif %}
 
 {% if consul_cloud_join | length > 0 %}
+# Cloud-ready join
 retry_join = ["{{ consul_cloud_join | join(' ') }}"]
 {% endif %}
 

@@ -31,7 +31,7 @@ Utilisation minimale :
       roles:
          - { role: ansible-consul }
       vars:
-        consul_consul_cluster: consul-cluster.si1a
+        consul_consul_cluster: consul-cluster.local # consul servers
 
 Mise en place d'un serveur :
 
@@ -40,6 +40,9 @@ Mise en place d'un serveur :
          - { role: ansible-consul }
       vars:
         consul_server_mode: true
+        consul_client_addr: # client API
+            - 172.17.0.1    # interface docker0
+            - 127.0.0.1     # localhost
 
 License
 -------
