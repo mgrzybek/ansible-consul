@@ -4,7 +4,7 @@ consul_http_proxy: ""
 consul_https_proxy: "{{ consul_http_proxy }}"
 consul_http_no_proxy: ""
 consul_package_state: present # latest
-consul_consul_version: 1.6.1
+consul_consul_version: 1.6.3
 consul_consul_version_ent: false
 consul_consul_repo_url: https://releases.hashicorp.com/consul
 consul_consul_bin_zip_url: "{{ consul_consul_repo_url }}/{{ consul_consul_version }}/consul_{{ consul_consul_version }}_linux_amd64.zip"
@@ -14,7 +14,6 @@ cache_timeout: 600
 
 consul_server_mode: false
 consul_consul_bootstrap_expect:
-consul_consul_cluster:
 
 
 consul_config_telegraf: false
@@ -51,3 +50,5 @@ consul_client_addr: [ "127.0.0.1" ]
 
 consul_show_master_token: true
 consul_datacenter: dc1
+
+consul_retry_join: []
