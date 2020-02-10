@@ -24,6 +24,14 @@
     and consul_acl_token_store_swift | lower == 'true'
     and consul_enable_acl | lower == 'true'
 
+- name: Check consul_datacenter
+  fail: msg="consul_datacenter must be configured"
+  when: consul_datacenter is undefined or consul_datacenter | length < 2
+ 
+- name: Check consul_dns_domain
+  fail: msg="consul_datacenter must be configured"
+  when: consul_dns_domain is undefined or consul_dns_domain | length < 2
+  
 - set_fact:
     install_consul: false
     configure_telegraf: false
