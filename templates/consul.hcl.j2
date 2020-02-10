@@ -52,10 +52,8 @@ serf_wan           = "{{ consul_serf_wan_bind }}"
 serf_lan           = "{{ consul_serf_lan_bind }}"
 {% endif %}
 
-{% if consul_retry_join | length > 0 %}
-{% for j in consul_retry_join %}
-retry_join = "{{ j }}"
-{% endfor %}
+{% if consul_retry_join != None and consul_retry_join | length > 0 %}
+retry_join = {{ j }}
 {% endif %}
 
 performance = {
