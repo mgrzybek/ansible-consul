@@ -57,7 +57,7 @@ serf_lan           = "{{ consul_serf_lan_bind }}"
 retry_join = ["{{ consul_cloud_join | join(' ') }}"]
 {% endif %}
 
-\% for j in consul_retry_join %}
+{% for j in consul_retry_join %}
 retry_join = "{{ j }}"
 {% endfor %}
 
