@@ -52,11 +52,6 @@ serf_wan           = "{{ consul_serf_wan_bind }}"
 serf_lan           = "{{ consul_serf_lan_bind }}"
 {% endif %}
 
-{% if consul_cloud_join | length > 0 %}
-# Cloud-ready join
-retry_join = ["{{ consul_cloud_join | join(' ') }}"]
-{% endif %}
-
 {% if consul_retry_join | length > 0 %}
 {% for j in consul_retry_join %}
 retry_join = "{{ j }}"
