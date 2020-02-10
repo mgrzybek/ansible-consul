@@ -52,8 +52,8 @@ serf_wan           = "{{ consul_serf_wan_bind }}"
 serf_lan           = "{{ consul_serf_lan_bind }}"
 {% endif %}
 
-{% if consul_retry_join != None and consul_retry_join | length > 0 %}
-retry_join = {{ consul_retry_join }}
+{% if consul_retry_join != None and consul_retry_join | length > 0 and consul_retry_join[0] | length > 0 %}
+retry_join = {{ consul_retry_join | to_yaml }}
 {% endif %}
 
 performance = {
