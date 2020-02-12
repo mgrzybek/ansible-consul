@@ -29,7 +29,7 @@
   when: consul_datacenter is undefined or consul_datacenter | length < 2
  
 - name: Check consul_dns_domain
-  fail: msg="consul_datacenter must be configured"
+  fail: msg="consul_dns_domain must be configured"
   when: consul_dns_domain is undefined or consul_dns_domain | length < 2
   
 - set_fact:
