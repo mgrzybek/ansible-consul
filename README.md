@@ -31,7 +31,7 @@ Utilisation minimale :
       roles:
          - { role: ansible-consul }
       vars:
-        consul_consul_cluster: consul-cluster.local # consul servers
+        consul_retry_join: consul-cluster.local # consul servers
 
 Mise en place d'un serveur :
 

@@ -34,27 +34,26 @@ recursors = {{ consul_recursors | join(' ') }}
 
 # Bindings
 {% if consul_client_addr != None %}
-client_addr = "{{ consul_client_addr | join(' ') }}"
+client_addr        = "{{ consul_client_addr | join(' ') }}"
 {% endif %}
 {% if consul_advertise_addr != None %}
-advertise_addr = "{{ consul_advertise_addr }}"
+advertise_addr     = "{{ consul_advertise_addr }}"
 {% endif %}
 {% if consul_advertise_addr_wan != None %}
 advertise_addr_wan = "{{ consul_advertise_addr_wan }}"
 {% endif %}
 {% if consul_bind != None %}
-bind_addr     = "{{ consul_bind }}"
+bind_addr          = "{{ consul_bind }}"
 {% endif %}
 {% if consul_serf_wan_bind != None %}
-serf_wan      = "{{ consul_serf_wan_bind }}"
+serf_wan           = "{{ consul_serf_wan_bind }}"
 {% endif %}
 {% if consul_serf_lan_bind != None %}
-serf_lan      = "{{ consul_serf_lan_bind }}"
+serf_lan           = "{{ consul_serf_lan_bind }}"
 {% endif %}
 
-{% if consul_cloud_join | length > 0 %}
-# Cloud-ready join
-retry_join = ["{{ consul_cloud_join | join(' ') }}"]
+{% if consul_retry_join != None and consul_retry_join | length > 0 and consul_retry_join[0] | length > 0 %}
+retry_join = {{ consul_retry_join | from_yaml | regex_replace("u","") | regex_replace("'",'"') }}
 {% endif %}
 
 performance = {
