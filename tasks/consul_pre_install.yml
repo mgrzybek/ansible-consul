@@ -6,7 +6,10 @@
 #    - consul_dns_port | number == false
 
 - name: Test HTTP Proxy
-  when: consul_http_proxy is defined and consul_http_proxy | length > 0
+  when:
+       - consul_http_proxy is defined
+       - consul_http_proxy != None
+       - consul_http_proxy | length > 0
   block:
       - name: Test proxy {{ consul_http_proxy }} (http)
         uri: url={{ consul_http_proxy }} method=GET status_code=400,403
