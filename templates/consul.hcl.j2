@@ -54,7 +54,7 @@ serf_lan           = "{{ consul_serf_lan_bind }}"
 
 {% if consul_retry_join != None and consul_retry_join | length > 0 %}
 {% for item in consul_retry_join %}
-retry_join = "{{ item }}"
+retry_join = ["{{ item }}"]
 {% endfor %}
 {% endif %}
 
