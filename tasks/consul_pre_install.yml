@@ -18,7 +18,8 @@
         when: consul_http_proxy != consul_https_proxy
         uri: url={{ consul_https_proxy }} method=GET status_code=400,403
 
-- fail: msg="Openstack credencials must be present"
+- name: Check Openstack credentials
+  fail: msg="Openstack credencials must be present"
   when: (lookup('env', 'OS_USERNAME') is undefined
     or lookup('env', 'OS_PASSWORD') is undefined
     or lookup('env', 'OS_AUTH_URL') is undefined
@@ -35,7 +36,8 @@
   fail: msg="consul_dns_domain must be configured"
   when: consul_dns_domain is undefined or consul_dns_domain | length < 2
 
-- set_fact:
+- name: Set local facts
+  set_fact:
     install_consul: false
     configure_telegraf: false
     write_consul_env_file: false
@@ -64,11 +66,13 @@
         cat /etc/consul.json \
         | awk '/acl_master_token/ {gsub("\"","");gsub(",","");print $NF}'
 
-    - when: consul_json.stdout_lines | length > 0
+    - name: Set local fact (consul_uuid)
+      when: consul_json.stdout_lines | length > 0
       set_fact:
         consul_uuid: "{{ consul_json.stdout }}"
 
-    - when: consul_json.stdout_lines | length == 0
+    - name: Set local fact ( consul_uuid)
+      when: consul_json.stdout_lines | length == 0
       set_fact:
         consul_uuid: "{{ 999999999999999999999 | random | string + (lookup('pipe', 'date +%s%N')) | to_uuid() }}"
 
@@ -82,7 +86,8 @@
         cat /etc/consul.json \
         | awk '/encrypt/ {gsub("\"","");gsub(",","");print $NF}'
 
-    - when: consul_json.stdout_lines | length > 0
+    - name: Set local fact (consul_encrypt)
+      when: consul_json.stdout_lines | length > 0
       set_fact:
         consul_encrypt: "{{ consul_json.stdout }}"
 
@@ -94,7 +99,8 @@
     version_to_install: "{{ consul_consul_version }}"
     install_consul: true
 
-- when:
+- name: Set local fact (consul_encrypt)
+  when:
     - consul_consul_encrypt != None
   set_fact:
     consul_encrypt: "{{ consul_consul_encrypt }}"
@@ -117,7 +123,8 @@
             | grep {% if consul_consul_version_ent | lower == 'false' %}-v{% endif %} ent \
             | head -n 1|awk -F/ '{print $3}'
 
-    - fail: msg="Cannot get last version"
+    - name: Check last version value
+      fail: msg="Cannot get last version"
       when: last_version.stdout | length == 0
 
     - name: version to install = {{ last_version.stdout }}, install_consul = true
@@ -130,7 +137,8 @@
   register: telegraf_service
   shell: systemctl is-active telegraf 2>/dev/null || echo ko && exit 0
 
-- when:
+- name: Set local fact (configure_telegraf to true)
+  when:
     - telegraf_service.stdout.find('ko') < 0
     - consul_config_telegraf | lower == 'true'
   set_fact:
