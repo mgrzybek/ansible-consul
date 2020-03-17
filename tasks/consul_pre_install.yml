@@ -13,7 +13,7 @@
   block:
       - name: Test proxy {{ consul_http_proxy }} (http)
         uri: url={{ consul_http_proxy }} method=GET status_code=400,403
-  
+ 
       - name: Test proxy {{ consul_http_proxy }} (https)
         when: consul_http_proxy != consul_https_proxy
         uri: url={{ consul_https_proxy }} method=GET status_code=400,403
@@ -30,11 +30,11 @@
 - name: Check consul_datacenter
   fail: msg="consul_datacenter must be configured"
   when: consul_datacenter is undefined or consul_datacenter | length < 2
- 
+
 - name: Check consul_dns_domain
   fail: msg="consul_dns_domain must be configured"
   when: consul_dns_domain is undefined or consul_dns_domain | length < 2
-  
+
 - set_fact:
     install_consul: false
     configure_telegraf: false
