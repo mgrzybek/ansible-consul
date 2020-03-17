@@ -4,11 +4,12 @@
   when: consul_encrypt is not defined
   run_once: true
   block:
-    - name:  Generate keygen
+    - name: Generate keygen
       command: /usr/local/bin/consul keygen
       register: consul_keygen
 
-    - set_fact: consul_encrypt="{{ consul_keygen.stdout }}"
+    - name: Set local fact (consul_encrypt)
+      set_fact: consul_encrypt="{{ consul_keygen.stdout }}"
 
 - name: Sysconfig
   template: src=consul.sysconfig.j2 dest={{ consul_sysconfig }} mode=600
