@@ -13,7 +13,7 @@
   block:
       - name: Test proxy {{ consul_http_proxy }} (http)
         uri: url={{ consul_http_proxy }} method=GET status_code=400,403
- 
+
       - name: Test proxy {{ consul_http_proxy }} (https)
         when: consul_http_proxy != consul_https_proxy
         uri: url={{ consul_https_proxy }} method=GET status_code=400,403
