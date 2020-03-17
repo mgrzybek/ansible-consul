@@ -4,7 +4,7 @@
   service: name=consul state=restarted enabled=yes
 
 - name: reload systemd
-  shell: systemctl daemon-reload
+  systemd: daemon_reload=yes
 
 - name: restart telegraf
   service: name=telegraf state=restarted
