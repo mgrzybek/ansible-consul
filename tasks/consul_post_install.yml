@@ -21,13 +21,13 @@
 
 - name: Telegraf configuration
   when:
-    - configure_telegraf == true
+    - configure_telegraf | lower == 'true'
   notify: restart telegraf
   template: src=consul.telegraf.conf.j2 dest=/etc/telegraf/telegraf.d/consul.conf
 
 - name: Kernel capabilities
   when:
-    - install_consul == true
+    - install_consul | lower == 'true'
     - consul_dns_port < 1024
   command: setcap cap_net_bind_service=+ep /usr/local/bin/consul
 
@@ -35,7 +35,7 @@
 
 - name: ACLs post-configuration
   when:
-    - consul_enable_acl == true
+    - consul_enable_acl | lower == 'true'
     - consul_server_mode | lower == 'true'
   run_once: true
   block:
