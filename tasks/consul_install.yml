@@ -19,7 +19,7 @@
 # Recuperation du binaire
 
 - name: Install consul
-  when: install_consul == true
+  when: install_consul | lower == 'true'
   block:
     - name: Get binary ({{ version_to_install }})
       register: get_binary
