@@ -3,7 +3,7 @@
 - name: Show master token
   run_once: true
   when:
-    - consul_show_master_token | lower =='true' 
+    - consul_show_master_token | lower =='true'
     - acl_info.stdout.find("no longer") < 0
   debug: var=acl_secret_id
 
@@ -28,4 +28,4 @@
   when:
     - consul_acl_token_store_swift | lower == 'true'
   shell: echo {{ acl_secret_id }} | swift upload --object-name=token consul -
- 
+
