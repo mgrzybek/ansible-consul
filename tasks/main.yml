@@ -1,25 +1,24 @@
----
 # tasks file for ansible-consul
 
 - name: OS-specific variables
-  include_vars: "{{ item }}"
+  include_vars: '{{ item }}'
   with_first_found:
-    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml"
-    - "{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
-    - "{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml"
-    - "{{ ansible_distribution | lower }}.yml"
-    - "{{ ansible_os_family | lower }}.yml"
+  - '{{ ansible_distribution | lower }}-{{ ansible_distribution_version | lower }}.yml'
+  - '{{ ansible_distribution | lower }}-{{ ansible_distribution_major_version | lower }}.yml'
+  - '{{ ansible_os_family | lower }}-{{ ansible_distribution_major_version | lower }}.yml'
+  - '{{ ansible_distribution | lower }}.yml'
+  - '{{ ansible_os_family | lower }}.yml'
   tags:
-    - always
+  - always
 
 - include: consul_pre_install.yml
   tags:
-    - consul-pre-install
+  - consul-pre-install
 
 - include: consul_install.yml
   tags:
-    - consul-install
+  - consul-install
 
 - include: consul_post_install.yml
   tags:
-    - consul-post-install
+  - consul-post-install

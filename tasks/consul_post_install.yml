@@ -1,15 +1,13 @@
----
-
 - name: Generate gossip encryption key
   when: consul_encrypt is not defined
   run_once: true
   block:
-    - name: Generate keygen
-      command: /usr/local/bin/consul keygen
-      register: consul_keygen
+  - name: Generate keygen
+    command: /usr/local/bin/consul keygen
+    register: consul_keygen
 
-    - name: Set local fact (consul_encrypt)
-      set_fact: consul_encrypt="{{ consul_keygen.stdout }}"
+  - name: Set local fact (consul_encrypt)
+    set_fact: consul_encrypt="{{ consul_keygen.stdout }}"
 
 - name: Sysconfig
   template: src=consul.sysconfig.j2 dest={{ consul_sysconfig }} mode=600
@@ -21,66 +19,66 @@
 
 - name: Telegraf configuration
   when:
-    - configure_telegraf | lower == 'true'
+  - configure_telegraf | lower == 'true'
   notify: restart telegraf
   template: src=consul.telegraf.conf.j2 dest=/etc/telegraf/telegraf.d/consul.conf
 
 - name: Kernel capabilities
   when:
-    - install_consul | lower == 'true'
-    - consul_dns_port < 1024
+  - install_consul | lower == 'true'
+  - consul_dns_port < 1024
   command: setcap cap_net_bind_service=+ep /usr/local/bin/consul
 
 - meta: flush_handlers
 
 - name: ACLs post-configuration
   when:
-    - consul_enable_acl | lower == 'true'
-    - consul_server_mode | lower == 'true'
+  - consul_enable_acl | lower == 'true'
+  - consul_server_mode | lower == 'true'
   run_once: true
   block:
-    - name: Wait for Consul to be online
-      wait_for: port=8500 timeout=20
+  - name: Wait for Consul to be online
+    wait_for: port=8500 timeout=20
 
-    - name: Wait for consul quorum
-      until: catalog_info.stderr.find('403') > -1
-      ignore_errors: yes
-      retries: 300
-      delay: 10
-      register: catalog_info
-      command: consul catalog services
+  - name: Wait for consul quorum
+    until: catalog_info.stderr.find('403') > -1
+    ignore_errors: yes
+    retries: 300
+    delay: 10
+    register: catalog_info
+    command: consul catalog services
 
-    - name: Bootstrap ACL
-      until: acl_info is success or acl_info.stdout.find("no longer") > -1
-      retries: 5
-      delay: 2
-      register: acl_info
-      command: consul acl bootstrap
+  - name: Bootstrap ACL
+    until: acl_info is success or acl_info.stdout.find("no longer") > -1
+    retries: 5
+    delay: 2
+    register: acl_info
+    command: consul acl bootstrap
 
-    - name: ACL not set
-      when: acl_info.stdout.find("no longer") < 0
-      block:
-        - name: Set acl facts
-          set_fact:
-            acl_secret_id: "{{ acl_info.stdout_lines[1] | regex_replace('^.+:\\s+','') }}"
+  - name: ACL not set
+    when: acl_info.stdout.find("no longer") < 0
+    block:
+    - name: Set acl facts
+      set_fact:
+        acl_secret_id: "{{ acl_info.stdout_lines[1] | regex_replace('^.+:\\s+','') }}"
 
-        - name: Create some rules
-          template: src=policy.hcl.j2 dest=/tmp/policy.hcl
+    - name: Create some rules
+      template: src=policy.hcl.j2 dest=/tmp/policy.hcl
 
-        - name: Apply the rules
-          command: >
-              consul acl policy create \
-                  -name "nodes" \
-                  -description="Policy used by nodes" \
-                  -rules @/tmp/policy.hcl
-          environment:
-            CONSUL_HTTP_TOKEN: "{{ acl_secret_id }}"
+    - name: Apply the rules
+      command: >
+        consul acl policy create \
+            -name "nodes" \
+            -description="Policy used by nodes" \
+            -rules @/tmp/policy.hcl
+      environment:
+        CONSUL_HTTP_TOKEN: '{{ acl_secret_id }}'
 
-        - name: Clean-up
-          file: path=/tmp/policy.hcl state=absent
-          
-        - name: Store token
-          import_tasks: consul_post_install_token.yml
+    - name: Clean-up
+      file: path=/tmp/policy.hcl state=absent
+
+    - name: Store token
+      import_tasks: consul_post_install_token.yml
 
 - name: Autostart consul
   service: name=consul state=started enabled=yes

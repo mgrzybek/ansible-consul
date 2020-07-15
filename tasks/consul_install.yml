@@ -1,9 +1,7 @@
----
-
 - name: OS-specific packages
   package:
-    name: "{{ consul_distro_packages }}"
-    state: "{{ consul_package_state }}"
+    name: '{{ consul_distro_packages }}'
+    state: '{{ consul_package_state }}'
     update_cache: "{{ (ansible_pkg_mgr == 'apt') | ternary('yes', omit) }}"
     cache_valid_time: "{{ (ansible_pkg_mgr == 'apt') | ternary(cache_timeout, omit) }}"
   register: install_packages
@@ -11,9 +9,9 @@
   retries: 5
   delay: 2
   tags:
-    - install-apt
-    - install-yum
-    - install-zypper
+  - install-apt
+  - install-yum
+  - install-zypper
 
 ###########################
 # Recuperation du binaire
@@ -21,24 +19,24 @@
 - name: Install consul
   when: install_consul | lower == 'true'
   block:
-    - name: Get binary ({{ version_to_install }})
-      register: get_binary
-      until: get_binary is success
-      retries: 5
-      delay: 10
-      get_url:
-        url: "{{ consul_consul_repo_url }}/{{ version_to_install }}/consul_{{ version_to_install }}_linux_amd64.zip"
-        dest: "/tmp/consul_bin.zip"
-      environment:
-        http_proxy: "{{ consul_http_proxy }}"
-        https_proxy: "{{ consul_https_proxy }}"
+  - name: Get binary ({{ version_to_install }})
+    register: get_binary
+    until: get_binary is success
+    retries: 5
+    delay: 10
+    get_url:
+      url: '{{ consul_consul_repo_url }}/{{ version_to_install }}/consul_{{ version_to_install }}_linux_amd64.zip'
+      dest: /tmp/consul_bin.zip
+    environment:
+      http_proxy: '{{ consul_http_proxy }}'
+      https_proxy: '{{ consul_https_proxy }}'
 
-    - name: Install binary
-      unarchive: src="/tmp/consul_bin.zip" dest=/usr/local/bin/ mode=0755 copy=no
-      notify: restart consul
+  - name: Install binary
+    unarchive: src="/tmp/consul_bin.zip" dest=/usr/local/bin/ mode=0755 copy=no
+    notify: restart consul
 
-    - name: Cleanup
-      file: path="/tmp/consul_bin.zip" state=absent
+  - name: Cleanup
+    file: path="/tmp/consul_bin.zip" state=absent
 
 #############################################
 # Création des répertoires et service systemd
@@ -46,8 +44,8 @@
 - name: Directories
   file: path={{ item }} state=directory
   with_items:
-    - /etc/consul.d
-    - /var/lib/consul
+  - /etc/consul.d
+  - /var/lib/consul
 
 - name: Systemd services
   notify: reload systemd

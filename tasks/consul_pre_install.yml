@@ -1,5 +1,3 @@
----
-
 #- fail: msg="Bad DNS port number"
 #  when:
 #    - consul_dns_port != None
@@ -7,26 +5,20 @@
 
 - name: Test HTTP Proxy
   when:
-       - consul_http_proxy is defined
-       - consul_http_proxy != None
-       - consul_http_proxy | length > 0
+  - consul_http_proxy is defined
+  - consul_http_proxy != None
+  - consul_http_proxy | length > 0
   block:
-      - name: Test proxy {{ consul_http_proxy }} (http)
-        uri: url={{ consul_http_proxy }} method=GET status_code=400,403
+  - name: Test proxy {{ consul_http_proxy }} (http)
+    uri: url={{ consul_http_proxy }} method=GET status_code=400,403
 
-      - name: Test proxy {{ consul_http_proxy }} (https)
-        when: consul_http_proxy != consul_https_proxy
-        uri: url={{ consul_https_proxy }} method=GET status_code=400,403
+  - name: Test proxy {{ consul_http_proxy }} (https)
+    when: consul_http_proxy != consul_https_proxy
+    uri: url={{ consul_https_proxy }} method=GET status_code=400,403
 
 - name: Check Openstack credentials
   fail: msg="Openstack credencials must be present"
-  when: (lookup('env', 'OS_USERNAME') is undefined
-    or lookup('env', 'OS_PASSWORD') is undefined
-    or lookup('env', 'OS_AUTH_URL') is undefined
-    or lookup('env', 'OS_PROJECT_ID') is undefined
-    or lookup('env', 'OS_USER_DOMAIN_NAME') is undefined)
-    and consul_acl_token_store_swift | lower == 'true'
-    and consul_enable_acl | lower == 'true'
+  when: (lookup('env', 'OS_USERNAME') is undefined or lookup('env', 'OS_PASSWORD') is undefined or lookup('env', 'OS_AUTH_URL') is undefined or lookup('env', 'OS_PROJECT_ID') is undefined or lookup('env', 'OS_USER_DOMAIN_NAME') is undefined) and consul_acl_token_store_swift | lower == 'true' and consul_enable_acl | lower == 'true'
 
 - name: Check consul_datacenter
   fail: msg="consul_datacenter must be configured"
@@ -50,7 +42,7 @@
 - name: Check consul version
   register: consul_bin_version
   when:
-    - consul_bin_stats.stat.exists
+  - consul_bin_stats.stat.exists
   shell: >
     "{{ consul_install_prefix }}"/consul --version \
     | awk -Fv '/^Consul/ {print $2}'
@@ -60,78 +52,78 @@
   block:
     # TODO: use HCL file instead
     # TODO: check that this is not deprecated
-    - name: Get existing consul uuid in config file (acl stuff)
-      register: consul_json
-      shell: >
-        cat /etc/consul.json \
-        | awk '/acl_master_token/ {gsub("\"","");gsub(",","");print $NF}'
+  - name: Get existing consul uuid in config file (acl stuff)
+    register: consul_json
+    shell: >
+      cat /etc/consul.json \
+      | awk '/acl_master_token/ {gsub("\"","");gsub(",","");print $NF}'
 
-    - name: Set local fact (consul_uuid)
-      when: consul_json.stdout_lines | length > 0
-      set_fact:
-        consul_uuid: "{{ consul_json.stdout }}"
+  - name: Set local fact (consul_uuid)
+    when: consul_json.stdout_lines | length > 0
+    set_fact:
+      consul_uuid: '{{ consul_json.stdout }}'
 
-    - name: Set local fact ( consul_uuid)
-      when: consul_json.stdout_lines | length == 0
-      set_fact:
-        consul_uuid: "{{ 999999999999999999999 | random | string + (lookup('pipe', 'date +%s%N')) | to_uuid() }}"
+  - name: Set local fact ( consul_uuid)
+    when: consul_json.stdout_lines | length == 0
+    set_fact:
+      consul_uuid: "{{ 999999999999999999999 | random | string + (lookup('pipe', 'date +%s%N')) | to_uuid() }}"
 
 - name: Encrypt info
   run_once: true
   block:
     # TODO: use HCL file instead
-    - name: Get existing consul encrypt in config file (acl stuff)
-      register: consul_json
-      shell: >
-        cat /etc/consul.json \
-        | awk '/encrypt/ {gsub("\"","");gsub(",","");print $NF}'
+  - name: Get existing consul encrypt in config file (acl stuff)
+    register: consul_json
+    shell: >
+      cat /etc/consul.json \
+      | awk '/encrypt/ {gsub("\"","");gsub(",","");print $NF}'
 
-    - name: Set local fact (consul_encrypt)
-      when: consul_json.stdout_lines | length > 0
-      set_fact:
-        consul_encrypt: "{{ consul_json.stdout }}"
+  - name: Set local fact (consul_encrypt)
+    when: consul_json.stdout_lines | length > 0
+    set_fact:
+      consul_encrypt: '{{ consul_json.stdout }}'
 
 - name: Set facts (version to install = {{ consul_consul_version }}, install_consul = true)
   when:
-    - consul_package_state == 'present'
-    - consul_bin_version.stdout | default('') != consul_consul_version or not consul_bin_version is defined
+  - consul_package_state == 'present'
+  - consul_bin_version.stdout | default('') != consul_consul_version or not consul_bin_version is defined
   set_fact:
-    version_to_install: "{{ consul_consul_version }}"
+    version_to_install: '{{ consul_consul_version }}'
     install_consul: true
 
 - name: Set local fact (consul_encrypt)
   when:
-    - consul_consul_encrypt != None
+  - consul_consul_encrypt != None
   set_fact:
-    consul_encrypt: "{{ consul_consul_encrypt }}"
+    consul_encrypt: '{{ consul_consul_encrypt }}'
 
 - name: Last version
   when: consul_package_state == 'latest'
   block:
-    - name: Get last online version
-      run_once: true
-      register: last_version
-      until: last_version is success
-      retries: 5
-      delay: 10
-      shell: >
-        warn=False \
-        curl \
-            {% if consul_http_proxy is defined and consul_http_proxy | length > 0 %}-x {{ consul_http_proxy }}{% endif %} \
-            -s https://releases.hashicorp.com/consul/ \
-            | awk -F = '/consul_/ {gsub("\>.+$","");gsub("\"","");print $2}' \
-            | grep {% if consul_consul_version_ent | lower == 'false' %}-v{% endif %} ent \
-            | head -n 1|awk -F/ '{print $3}'
+  - name: Get last online version
+    run_once: true
+    register: last_version
+    until: last_version is success
+    retries: 5
+    delay: 10
+    shell: >
+      warn=False \
+      curl \
+          {% if consul_http_proxy is defined and consul_http_proxy | length > 0 %}-x {{ consul_http_proxy }}{% endif %} \
+          -s https://releases.hashicorp.com/consul/ \
+          | awk -F = '/consul_/ {gsub("\>.+$","");gsub("\"","");print $2}' \
+          | grep {% if consul_consul_version_ent | lower == 'false' %}-v{% endif %} ent \
+          | head -n 1|awk -F/ '{print $3}'
 
-    - name: Check last version value
-      fail: msg="Cannot get last version"
-      when: last_version.stdout | length == 0
+  - name: Check last version value
+    fail: msg="Cannot get last version"
+    when: last_version.stdout | length == 0
 
-    - name: version to install = {{ last_version.stdout }}, install_consul = true
-      when: consul_bin_version.stdout | default('') != last_version.stdout or not consul_bin_version is defined
-      set_fact:
-        version_to_install: "{{ last_version.stdout }}"
-        install_consul: true
+  - name: version to install = {{ last_version.stdout }}, install_consul = true
+    when: consul_bin_version.stdout | default('') != last_version.stdout or not consul_bin_version is defined
+    set_fact:
+      version_to_install: '{{ last_version.stdout }}'
+      install_consul: true
 
 - name: Check telegraf
   register: telegraf_service
@@ -139,26 +131,26 @@
 
 - name: Set local fact (configure_telegraf to true)
   when:
-    - telegraf_service.stdout.find('ko') < 0
-    - consul_config_telegraf | lower == 'true'
+  - telegraf_service.stdout.find('ko') < 0
+  - consul_config_telegraf | lower == 'true'
   set_fact:
     configure_telegraf: true
 
 - name: Set ACLs facts
   when:
-    - consul_enable_acl | lower == 'true'
+  - consul_enable_acl | lower == 'true'
   block:
-    - name: Set local fact (create an env file containing the token)
-      when:
-        - consul_acl_token_store_env_file | lower == 'true'
-      set_fact: write_consul_env_file=true
+  - name: Set local fact (create an env file containing the token)
+    when:
+    - consul_acl_token_store_env_file | lower == 'true'
+    set_fact: write_consul_env_file=true
 
-    - name: Set local fact (create a swift object containing the token)
-      when:
-        - consul_acl_token_store_swift | lower == 'true'
-        - lookup('env', 'OS_USERNAME') is defined
-        - lookup('env', 'OS_PASSWORD') is defined
-        - lookup('env', 'OS_AUTH_URL') is defined
-        - lookup('env', 'OS_PROJECT_ID') is defined
-        - lookup('env', 'OS_USER_DOMAIN_NAME') is defined
-      set_fact: consul_acl_token_store_swift=true
+  - name: Set local fact (create a swift object containing the token)
+    when:
+    - consul_acl_token_store_swift | lower == 'true'
+    - lookup('env', 'OS_USERNAME') is defined
+    - lookup('env', 'OS_PASSWORD') is defined
+    - lookup('env', 'OS_AUTH_URL') is defined
+    - lookup('env', 'OS_PROJECT_ID') is defined
+    - lookup('env', 'OS_USER_DOMAIN_NAME') is defined
+    set_fact: consul_acl_token_store_swift=true

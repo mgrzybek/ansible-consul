@@ -1,7 +1,5 @@
----
-
 consul_distro_packages:
- - unzip
+- unzip
 
 consul_sysconfig: /etc/sysconfig/consul
 

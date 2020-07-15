@@ -1,13 +1,11 @@
----
-
-consul_http_proxy: ""
-consul_https_proxy: "{{ consul_http_proxy }}"
-consul_http_no_proxy: ""
+consul_http_proxy: ''
+consul_https_proxy: '{{ consul_http_proxy }}'
+consul_http_no_proxy: ''
 consul_package_state: present # latest
 consul_consul_version: 1.7.0
 consul_consul_version_ent: false
 consul_consul_repo_url: https://releases.hashicorp.com/consul
-consul_consul_bin_zip_url: "{{ consul_consul_repo_url }}/{{ consul_consul_version }}/consul_{{ consul_consul_version }}_linux_amd64.zip"
+consul_consul_bin_zip_url: '{{ consul_consul_repo_url }}/{{ consul_consul_version }}/consul_{{ consul_consul_version }}_linux_amd64.zip'
 
 # Packaging
 cache_timeout: 600
@@ -42,11 +40,11 @@ consul_disable_update_check: true
 consul_disable_remote_exec: true
 
 consul_bind:
-consul_advertise_addr: "{{ ansible_default_ipv4.address }}"
-consul_serf_wan_bind: "{{ consul_advertise_addr }}"
-consul_serf_lan_bind: "{{ consul_advertise_addr }}"
-consul_advertise_addr_wan: "{{ consul_advertise_addr }}"
-consul_client_addr: [ "127.0.0.1" ]
+consul_advertise_addr: '{{ ansible_default_ipv4.address }}'
+consul_serf_wan_bind: '{{ consul_advertise_addr }}'
+consul_serf_lan_bind: '{{ consul_advertise_addr }}'
+consul_advertise_addr_wan: '{{ consul_advertise_addr }}'
+consul_client_addr: [127.0.0.1]
 
 consul_show_master_token: true
 consul_datacenter: dc1
