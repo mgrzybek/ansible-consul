@@ -34,7 +34,7 @@ consul_recursors: []
 consul_consul_encrypt:
 consul_cloud_join: []
 
-consul_consul_ui: true
+consul_ui: true
 
 consul_disable_update_check: true
 consul_disable_remote_exec: true
