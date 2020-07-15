@@ -17,6 +17,15 @@
   template: src=consul.hcl.j2 dest=/etc/consul.hcl mode=600
   notify: restart consul
 
+- name: Consul monitoring
+  when:
+  - consul_ui | lower == 'true'
+  with_items: '{{ consul_ui_service }}'
+  notify: reload consul
+  template:
+    src: service.consul.json.j2
+    dest: /etc/consul.d/{{ item.service.name }}.json
+
 - name: Telegraf configuration
   when:
   - configure_telegraf | lower == 'true'

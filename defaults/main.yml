@@ -13,7 +13,6 @@ cache_timeout: 600
 consul_server_mode: false
 consul_consul_bootstrap_expect:
 
-
 consul_config_telegraf: false
 
 consul_enable_acl: false
@@ -35,7 +34,19 @@ consul_consul_encrypt:
 consul_cloud_join: []
 
 consul_ui: true
+consul_ui_traefik_prefix: traefik
 consul_ui_content_path: /ui/
+consul_ui_service:
+- service:
+    name: consul-ui
+    port: 8500
+    enable_tag_override: false
+    tags:
+    - '{{ consul_ui_traefik_prefix }}.enable=true'
+    - '{{ consul_ui_traefik_prefix }}.http.routers.consul-ui.rule=PathPrefix(`{{ consul_ui_content_path }}`)'
+    checks:
+    - http: http://0.0.0.0:8500
+      interval: 60s
 
 consul_disable_update_check: true
 consul_disable_remote_exec: true
