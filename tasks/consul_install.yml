@@ -1,4 +1,4 @@
-- name: OS-specific packages
+- name: Install | OS-specific packages
   package:
     name: '{{ consul_distro_packages }}'
     state: '{{ consul_package_state }}'
@@ -16,10 +16,10 @@
 ###########################
 # Recuperation du binaire
 
-- name: Install consul
+- name: Install | Install consul
   when: install_consul | lower == 'true'
   block:
-  - name: Get binary ({{ version_to_install }})
+  - name: Install | Get binary ({{ version_to_install }})
     register: get_binary
     until: get_binary is success
     retries: 5
@@ -31,22 +31,22 @@
       http_proxy: '{{ consul_http_proxy }}'
       https_proxy: '{{ consul_https_proxy }}'
 
-  - name: Install binary
+  - name: Install | Install binary
     unarchive: src="/tmp/consul_bin.zip" dest=/usr/local/bin/ mode=0755 copy=no
     notify: restart consul
 
-  - name: Cleanup
+  - name: Install | Cleanup
     file: path="/tmp/consul_bin.zip" state=absent
 
 #############################################
 # Création des répertoires et service systemd
 
-- name: Directories
+- name: Install | Directories
   file: path={{ item }} state=directory
   with_items:
   - /etc/consul.d
   - /var/lib/consul
 
-- name: Systemd services
+- name: Install | Systemd services
   notify: reload systemd
   template: src=consul.service.j2 dest=/etc/systemd/system/consul.service

@@ -1,4 +1,4 @@
-- name: Show master token
+- name: Post-Install Token | Show master token
   run_once: true
   when:
   - consul_show_master_token | lower =='true'
@@ -6,23 +6,23 @@
   debug: var=acl_secret_id
 
 # TODO: set a local fact in pre_install to manage this
-- name: Create an env file containing the token
+- name: Post-Install Token | Create an env file containing the token
   when:
   - write_consul_env_file | lower == 'true'
   block:
-  - name: Create .consul.env
+  - name: Post-Install Token | Create .consul.env
     file:
       path: "{{ lookup('env', 'HOME') }}/.consul.env"
       state: touch
 
-  - name: Create an env file containing the token
+  - name: Post-Install Token | Create an env file containing the token
     lineinfile:
       path: "{{ lookup('env', 'HOME') }}/.consul.env"
       state: present
       regexp: ^(CONSUL_HTTP_TOKEN=.+){0,1}$
       line: CONSUL_HTTP_TOKEN={{ acl_secret_id }}
 
-- name: Create a swift object containing the token
+- name: Post-Install Token | Create a swift object containing the token
   when:
   - consul_acl_token_store_swift | lower == 'true'
   shell: echo {{ acl_secret_id }} | swift upload --object-name=token consul -

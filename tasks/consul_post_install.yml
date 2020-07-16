@@ -1,23 +1,23 @@
-- name: Generate gossip encryption key
+- name: Post-Install | Generate gossip encryption key
   when: consul_encrypt is not defined
   run_once: true
   block:
-  - name: Generate keygen
+  - name: Post-Install | Generate keygen
     command: /usr/local/bin/consul keygen
     register: consul_keygen
 
-  - name: Set local fact (consul_encrypt)
+  - name: Post-Install | Set local fact (consul_encrypt)
     set_fact: consul_encrypt="{{ consul_keygen.stdout }}"
 
-- name: Sysconfig
+- name: Post-Install | Sysconfig
   template: src=consul.sysconfig.j2 dest={{ consul_sysconfig }} mode=600
   notify: restart consul
 
-- name: Consul configuration file
+- name: Post-Install | Consul configuration file
   template: src=consul.hcl.j2 dest=/etc/consul.hcl mode=600
   notify: restart consul
 
-- name: Consul monitoring
+- name: Post-Install | Consul monitoring
   when:
   - consul_ui | lower == 'true'
   with_items: '{{ consul_ui_service }}'
@@ -26,13 +26,13 @@
     src: service.consul.json.j2
     dest: /etc/consul.d/{{ item.service.name }}.json
 
-- name: Telegraf configuration
+- name: Post-Install | Telegraf configuration
   when:
   - configure_telegraf | lower == 'true'
   notify: restart telegraf
   template: src=consul.telegraf.conf.j2 dest=/etc/telegraf/telegraf.d/consul.conf
 
-- name: Kernel capabilities
+- name: Post-Install | Kernel capabilities
   when:
   - install_consul | lower == 'true'
   - consul_dns_port < 1024
@@ -40,16 +40,16 @@
 
 - meta: flush_handlers
 
-- name: ACLs post-configuration
+- name: Post-Install | ACLs post-configuration
   when:
   - consul_enable_acl | lower == 'true'
   - consul_server_mode | lower == 'true'
   run_once: true
   block:
-  - name: Wait for Consul to be online
+  - name: Post-Install | Wait for Consul to be online
     wait_for: port=8500 timeout=20
 
-  - name: Wait for consul quorum
+  - name: Post-Install | Wait for consul quorum
     until: catalog_info.stderr.find('403') > -1
     ignore_errors: yes
     retries: 300
@@ -57,24 +57,24 @@
     register: catalog_info
     command: consul catalog services
 
-  - name: Bootstrap ACL
+  - name: Post-Install | Bootstrap ACL
     until: acl_info is success or acl_info.stdout.find("no longer") > -1
     retries: 5
     delay: 2
     register: acl_info
     command: consul acl bootstrap
 
-  - name: ACL not set
+  - name: Post-Install | ACL not set
     when: acl_info.stdout.find("no longer") < 0
     block:
-    - name: Set acl facts
+    - name: Post-Install | Set acl facts
       set_fact:
         acl_secret_id: "{{ acl_info.stdout_lines[1] | regex_replace('^.+:\\s+','') }}"
 
-    - name: Create some rules
+    - name: Post-Install | Create some rules
       template: src=policy.hcl.j2 dest=/tmp/policy.hcl
 
-    - name: Apply the rules
+    - name: Post-Install | Apply the rules
       command: >
         consul acl policy create \
             -name "nodes" \
@@ -83,11 +83,11 @@
       environment:
         CONSUL_HTTP_TOKEN: '{{ acl_secret_id }}'
 
-    - name: Clean-up
+    - name: Post-Install | Clean-up
       file: path=/tmp/policy.hcl state=absent
 
-    - name: Store token
+    - name: Post-Install | Store token
       import_tasks: consul_post_install_token.yml
 
-- name: Autostart consul
+- name: Post-Install | Autostart consul
   service: name=consul state=started enabled=yes
