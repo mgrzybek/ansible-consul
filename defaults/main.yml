@@ -2,10 +2,7 @@ consul_http_proxy: ''
 consul_https_proxy: '{{ consul_http_proxy }}'
 consul_http_no_proxy: ''
 consul_package_state: present # latest
-consul_consul_version: 1.7.0
 consul_consul_version_ent: false
-consul_consul_repo_url: https://releases.hashicorp.com/consul
-consul_consul_bin_zip_url: '{{ consul_consul_repo_url }}/{{ consul_consul_version }}/consul_{{ consul_consul_version }}_linux_amd64.zip'
 
 # Packaging
 cache_timeout: 600

@@ -14,8 +14,17 @@
   notify: restart consul
 
 - name: Post-Install | Consul configuration file
-  template: src=consul.hcl.j2 dest=/etc/consul.hcl mode=600
   notify: restart consul
+  template:
+    owner: consul
+    group: consul
+    src: consul.hcl.j2
+    dest: '{{ consul_conf_file }}'
+    mode: 0600
+
+- name: Post-Install | Systemd services
+  notify: reload systemd
+  template: src=consul.service.j2 dest=/etc/systemd/system/consul.service
 
 - name: Post-Install | Consul monitoring
   when:

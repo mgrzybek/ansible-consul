@@ -1,6 +1,8 @@
 consul_distro_packages:
-- unzip
+- consul
 
 consul_sysconfig: /etc/sysconfig/consul
+consul_conf_file: /etc/consul.d/consul.hcl
 
-consul_install_prefix: /usr/local/bin
+consul_rpm_key: https://apt.releases.hashicorp.com/gpg
+consul_rpm_repo: https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo

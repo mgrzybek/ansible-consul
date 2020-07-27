@@ -1,6 +1,8 @@
 consul_distro_packages:
-- unzip
+- consul
 
 consul_sysconfig: /etc/default/consul
+consul_conf_file: /etc/consul.d/consul.hcl
 
-consul_install_prefix: /usr/local/bin
+consul_apt_key: https://apt.releases.hashicorp.com/gpg
+consul_apt_repo: deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main
