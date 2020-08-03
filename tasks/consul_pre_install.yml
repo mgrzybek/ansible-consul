@@ -28,6 +28,12 @@
   fail: msg="consul_dns_domain must be configured"
   when: consul_dns_domain is undefined or consul_dns_domain | length < 2
 
+- name: Pre-Install | Check consul_consul_bootstrap_expect
+  fail: msg="consul_consul_bootstrap_expect must be given"
+  when:
+  - consul_server_mode | lower == 'true'
+  - consul_consul_bootstrap_expect == None or consul_consul_bootstrap_expect == 0
+
 - name: Pre-Install | Set local facts
   set_fact:
     install_consul: false
@@ -35,6 +41,7 @@
     write_consul_env_file: false
     consul_acl_token_store_swift: false
     acl_secret_id: ''
+
 - name: Pre-Install | Check consul.hcl file
   register: consul_stat
   stat: path={{ consul_conf_file }}
@@ -122,7 +129,20 @@
 - name: Pre-Install | Declare APT repo
   when: ansible_pkg_mgr | lower == 'apt'
   block:
-  - name: Pre-Install | Add key
+  - name: Pre-Install | Add key (with proxy)
+    when:
+    - consul_http_proxy != None
+    environment:
+      http_proxy: '{{ consul_http_proxy }}'
+      https_proxy: '{{ consul_https_proxy }}'
+      no_proxy: '{{ consul_http_no_proxy }}'
+    apt_key:
+      url: '{{ consul_apt_key }}'
+      state: present
+
+  - name: Pre-Install | Add key (with proxy)
+    when:
+    - consul_http_proxy == None
     apt_key:
       url: '{{ consul_apt_key }}'
       state: present
@@ -133,10 +153,12 @@
       state: present
 
 - name: Pre-Install | Declare RPM repo
-  when: ansible_pkg_mgr | lower == 'rpm'
+  when: ansible_pkg_mgr | lower == 'dnf' or ansible_pkg_mgr | lower == 'rpm'
   block:
   - name: Pre-Install | Add repo
     yum_repository:
-      repo: '{{ consul_rpm_repo }}'
+      name: hashicorp
+      description: Official Hashicorp RPM repository
+      baseurl: '{{ consul_rpm_repo }}'
       gpgkey: '{{ consul_rpm_key }}'
       state: present

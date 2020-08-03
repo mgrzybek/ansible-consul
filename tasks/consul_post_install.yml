@@ -3,7 +3,7 @@
   run_once: true
   block:
   - name: Post-Install | Generate keygen
-    command: /usr/local/bin/consul keygen
+    command: consul keygen
     register: consul_keygen
 
   - name: Post-Install | Set local fact (consul_encrypt)
