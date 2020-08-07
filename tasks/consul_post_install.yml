@@ -47,6 +47,9 @@
   - consul_dns_port < 1024
   command: setcap cap_net_bind_service=+ep /usr/local/bin/consul
 
+- name: Post-Install | Autostart consul
+  service: name=consul state=started enabled=yes
+
 - meta: flush_handlers
 
 - name: Post-Install | ACLs post-configuration
@@ -97,6 +100,3 @@
 
     - name: Post-Install | Store token
       import_tasks: consul_post_install_token.yml
-
-- name: Post-Install | Autostart consul
-  service: name=consul state=started enabled=yes
