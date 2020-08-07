@@ -9,7 +9,7 @@ disable_update_check = {{ consul_disable_update_check | lower }}
 enable_script_checks = true
 
 {% if consul_server_mode | lower == 'true' %}
-{% if consul_consul_bootstrap_expect != None and consul_consul_bootstrap_expect > 0 %}
+{% if consul_consul_bootstrap_expect != None and consul_consul_bootstrap_expect | int > 0 %}
 bootstrap_expect = {{ consul_consul_bootstrap_expect }}
 {% endif %}
 {% endif %}
