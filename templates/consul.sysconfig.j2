@@ -4,7 +4,7 @@
 {% set _ = _options.append('-server') %}
 {% endif %}
 {% if consul_ui_content_path != '/ui/' %}
-{% set _ = _options.append('-ui-content-path={{ consul_ui_content_path }}') %}
+{% set _ = _options.append('-ui-content-path='+consul_ui_content_path) %}
 {% endif %}
 {% if consul_http_proxy is defined and consul_http_proxy | length > 0 %}
 HTTP_PROXY={{ consul_http_proxy }}
