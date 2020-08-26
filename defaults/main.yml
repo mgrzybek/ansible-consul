@@ -40,7 +40,7 @@ consul_ui_service:
     enable_tag_override: false
     tags:
     - '{{ consul_ui_traefik_prefix }}.enable=true'
-    - '{{ consul_ui_traefik_prefix }}.http.routers.consul-ui.rule=PathPrefix(`{{ consul_ui_content_path }}`)'
+    - '{{ consul_ui_traefik_prefix }}.http.routers.consul-ui.rule=PathPrefix(`{{ consul_ui_content_path }}`) || Headers(`X-Consul-Token`)'
     checks:
     - http: http://0.0.0.0:8500
       interval: 60s
