@@ -1,0 +1,36 @@
+- hosts: all
+  vars:
+    consul_https_proxy: "{{ lookup('env','https_proxy') }}"
+    consul_http_no_proxy: "{{ lookup('env','no_proxy') }}"
+    consul_ui_content_path: /consul/
+    consul_server_mode: true
+    consul_consul_bootstrap_expect: 1
+    consul_client_addr: # client API
+    - 127.0.0.1
+
+  pre_tasks:
+
+  roles:
+  - role: ansible-consul
+
+  post_tasks:
+  - name: Post-Tasks | Test systemd service
+    command: systemctl status consul.service
+    changed_when: false
+
+  - name: Post-Tasks | Test consul members
+    shell: consul members | grep server
+    changed_when: false
+
+  - name: Post-Tasks | Get consul catalog
+    command: consul catalog services
+    changed_when: false
+    register: catalog
+
+  - name: Post-Tasks | Test consul services
+    assert:
+      fail_msg:
+      that:
+      - catalog.stdout_lines[0] != "consul"
+      - catalog.stdout_lines[1] != "consul-ui"
+
