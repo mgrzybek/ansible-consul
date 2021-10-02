@@ -1,4 +1,6 @@
 - hosts: all
+  become: true
+  become_method: sudo
   vars:
     consul_https_proxy: "{{ lookup('env','https_proxy') }}"
     consul_http_no_proxy: "{{ lookup('env','no_proxy') }}"
@@ -11,7 +13,7 @@
   pre_tasks:
 
   roles:
-  - role: ansible-consul
+  - role: ../ansible-consul
 
   post_tasks:
   - name: Post-Tasks | Test systemd service
