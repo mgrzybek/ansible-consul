@@ -1,8 +1,4 @@
-#  assert:
-#    fail_msg: Bad DNS port number
-#    that:
-#    - consul_dns_port is defned
-#    - consul_dns_port | number == true
+---
 
 - name: Pre-Install | Test HTTP Proxy
   when:
@@ -60,8 +56,8 @@
 - name: Pre-Install | ACL info
   run_once: true
   block:
-    # TODO: use HCL file instead
-    # TODO: check that this is not deprecated
+  # TODO: use HCL file instead
+  # TODO: check that this is not deprecated
   - name: Pre-Install | Get existing consul uuid in config file (acl stuff)
     when:
     - consul_stat.stat.exists == true
@@ -164,7 +160,7 @@
       state: present
 
 - name: Pre-Install | Declare RPM repo
-  when: ansible_pkg_mgr | lower == 'dnf' or ansible_pkg_mgr | lower == 'rpm'
+  when: ansible_pkg_mgr | lower | regex_search('(dnf)|(rpm)|(yum)')
   block:
   - name: Pre-Install | Add repo
     yum_repository:
