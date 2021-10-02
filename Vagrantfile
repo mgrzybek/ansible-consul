@@ -9,6 +9,7 @@ Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |p|
     p.cpus = ENV['VAGRANT_VM_CPUS'] || 1
     p.memory = ENV['VAGRANT_VM_MEMORY'] || 1024
+  end
 
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = "tests/main.yml"
