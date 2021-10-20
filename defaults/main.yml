@@ -42,7 +42,7 @@ consul_ui_service:
     - '{{ consul_ui_traefik_prefix }}.enable=true'
     - '{{ consul_ui_traefik_prefix }}.http.routers.consul-ui.rule=PathPrefix(`{{ consul_ui_content_path }}`) || HeadersRegexp(`X-Consul-Token`, `^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$`) || HeadersRegexp(`X-Consul-Token`, `^s.[a-zA-Z0-9]{24}$`)'
     checks:
-    - http: http://0.0.0.0:8500
+    - http: http://{{ consul_client_addr[0] }}:8500
       interval: 60s
 
 consul_disable_update_check: true
