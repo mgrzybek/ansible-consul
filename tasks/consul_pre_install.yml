@@ -39,7 +39,7 @@
     fail_msg: consul_consul_bootstrap_expect must be given
     that:
     - consul_consul_bootstrap_expect is defined
-    - consul_consul_bootstrap_expect > 0
+    - consul_consul_bootstrap_expect | int > 0
 
 - name: Pre-Install | Set local facts
   set_fact:
@@ -59,6 +59,7 @@
   # TODO: use HCL file instead
   # TODO: check that this is not deprecated
   - name: Pre-Install | Get existing consul uuid in config file (acl stuff)
+    changed_when: false
     when:
     - consul_stat.stat.exists == true
     register: consul_hcl
