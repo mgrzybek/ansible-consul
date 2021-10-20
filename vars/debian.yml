@@ -6,3 +6,7 @@ consul_conf_file: /etc/consul.d/consul.hcl
 
 consul_apt_key: https://apt.releases.hashicorp.com/gpg
 consul_apt_repo: deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main
+
+consul_data_dir: /var/lib/consul
+consul_conf_dir: /etc/consul.d
+consul_telegraf_conf_file: /etc/telegraf/telegraf.d/consul.conf

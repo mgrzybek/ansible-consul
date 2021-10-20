@@ -1,0 +1,9 @@
+consul_distro_packages:
+- consul
+
+consul_sysconfig: /etc/rc.conf.d/consul
+consul_conf_file: /usr/local/etc/consul.d/consul.hcl
+
+consul_data_dir: /var/db/consul
+consul_conf_dir: /usr/local/etc/consul.d
+consul_telegraf_conf_file: /usr/local/etc/telegraf.d/consul.conf

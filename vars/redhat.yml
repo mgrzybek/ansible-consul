@@ -6,3 +6,7 @@ consul_conf_file: /etc/consul.d/consul.hcl
 
 consul_rpm_key: https://apt.releases.hashicorp.com/gpg
 consul_rpm_repo: https://rpm.releases.hashicorp.com/RHEL/$releasever/$basearch/stable
+
+consul_data_dir: /var/lib/consul
+consul_conf_dir: /etc/consul.d
+consul_telegraf_conf_file: /etc/telegraf/telegraf.d/consul.conf
