@@ -1,7 +1,4 @@
-#- fail: msg="Bad DNS port number"
-#  when:
-#    - consul_dns_port != None
-#    - consul_dns_port | number == false
+---
 
 - name: Pre-Install | Test HTTP Proxy
   when:
@@ -17,22 +14,32 @@
     uri: url={{ consul_https_proxy }} method=GET status_code=400,403
 
 - name: Pre-Install | Check Openstack credentials
-  fail: msg="Openstack credencials must be present"
-  when: (lookup('env', 'OS_USERNAME') is undefined or lookup('env', 'OS_PASSWORD') is undefined or lookup('env', 'OS_AUTH_URL') is undefined or lookup('env', 'OS_PROJECT_ID') is undefined or lookup('env', 'OS_USER_DOMAIN_NAME') is undefined) and consul_acl_token_store_swift | lower == 'true' and consul_enable_acl | lower == 'true'
+  when:
+  - consul_acl_token_store_swift | lower == 'true'
+  - consul_enable_acl | lower == 'true'
+  assert:
+    fail_msg: Openstack credencials must be present
+    that:
+    - lookup('env', 'OS_USERNAME') is defined
+    - lookup('env', 'OS_PASSWORD') is defined
+    - lookup('env', 'OS_AUTH_URL') is defined
+    - lookup('env', 'OS_PROJECT_ID') is defined
+    - lookup('env', 'OS_USER_DOMAIN_NAME') is undefined
 
 - name: Pre-Install | Check consul_datacenter
-  fail: msg="consul_datacenter must be configured"
-  when: consul_datacenter is undefined or consul_datacenter | length < 2
-
-- name: Pre-Install | Check consul_dns_domain
-  fail: msg="consul_dns_domain must be configured"
-  when: consul_dns_domain is undefined or consul_dns_domain | length < 2
+  assert:
+    fail_msg: consul_datacenter must be configured
+    that:
+    - consul_datacenter is defined
+    - consul_datacenter | length > 2
 
 - name: Pre-Install | Check consul_consul_bootstrap_expect
-  fail: msg="consul_consul_bootstrap_expect must be given"
-  when:
-  - consul_server_mode | lower == 'true'
-  - consul_consul_bootstrap_expect == None or consul_consul_bootstrap_expect == 0
+  when: consul_server_mode | lower == 'true'
+  assert:
+    fail_msg: consul_consul_bootstrap_expect must be given
+    that:
+    - consul_consul_bootstrap_expect is defined
+    - consul_consul_bootstrap_expect > 0
 
 - name: Pre-Install | Set local facts
   set_fact:
@@ -49,8 +56,8 @@
 - name: Pre-Install | ACL info
   run_once: true
   block:
-    # TODO: use HCL file instead
-    # TODO: check that this is not deprecated
+  # TODO: use HCL file instead
+  # TODO: check that this is not deprecated
   - name: Pre-Install | Get existing consul uuid in config file (acl stuff)
     when:
     - consul_stat.stat.exists == true
@@ -164,7 +171,7 @@
       state: present
 
 - name: Pre-Install | Declare RPM repo
-  when: ansible_pkg_mgr | lower == 'dnf' or ansible_pkg_mgr | lower == 'rpm'
+  when: ansible_pkg_mgr | lower | regex_search('(dnf)|(rpm)|(yum)')
   block:
   - name: Pre-Install | Add repo
     yum_repository:
