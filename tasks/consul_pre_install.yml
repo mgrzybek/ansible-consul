@@ -80,6 +80,7 @@
     when:
     - consul_stat.stat.exists == true
     register: consul_hcl
+    changed_when: false
     shell: >
       awk -F= '/encrypt/ {gsub("\"","");gsub(" ","");print $NF}' {{ consul_conf_file }}
 
@@ -97,12 +98,22 @@
     consul_encrypt: '{{ consul_consul_encrypt }}'
 
 - name: Pre-Install | Check telegraf
+  when: ansible_distribution | lower == "linux"
   register: telegraf_service
-  shell: systemctl is-active telegraf 2>/dev/null || echo ko && exit 0
+  changed_when: false
+  failed_when: false
+  shell: systemctl is-active telegraf
+
+- name: Pre-Install | Check telegraf
+  when: ansible_distribution | lower != "linux"
+  register: telegraf_service
+  changed_when: false
+  failed_when: false
+  command: service telegraf onestatus
 
 - name: Pre-Install | Set local fact (configure_telegraf to true)
   when:
-  - telegraf_service.stdout.find('ko') < 0
+  - telegraf_service is success
   - consul_config_telegraf | lower == 'true'
   set_fact:
     configure_telegraf: true
