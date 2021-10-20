@@ -23,6 +23,7 @@
     mode: 0600
 
 - name: Post-Install | Systemd services
+  when: ansible_distribution | lower == "linux"
   notify: reload systemd
   template: src=consul.service.j2 dest=/etc/systemd/system/consul.service
 
@@ -33,16 +34,17 @@
   notify: reload consul
   template:
     src: service.consul.json.j2
-    dest: /etc/consul.d/{{ item.service.name }}.json
+    dest: "{{ consul_conf_dir }}/{{ item.service.name }}.json"
 
 - name: Post-Install | Telegraf configuration
   when:
   - configure_telegraf | lower == 'true'
   notify: restart telegraf
-  template: src=consul.telegraf.conf.j2 dest=/etc/telegraf/telegraf.d/consul.conf
+  template: src=consul.telegraf.conf.j2 dest={{ consul_telegraf_conf_file }}
 
 - name: Post-Install | Kernel capabilities
   when:
+  - ansible_distribution | lower == "linux"
   - install_consul | lower == 'true'
   - consul_dns_port < 1024
   command: setcap cap_net_bind_service=+ep /usr/local/bin/consul

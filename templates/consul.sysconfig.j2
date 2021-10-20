@@ -1,4 +1,5 @@
 # {{ ansible_managed }}
+{% if ansible_distribution | lower == "linux" %}
 {% set _options = ['-syslog'] %}
 {% if consul_server_mode | lower == 'true' %}
 {% set _ = _options.append('-server') %}
@@ -16,3 +17,7 @@ HTTPS_PROXY={{ consul_https_proxy }}
 NO_PROXY={{ consul_http_no_proxy }},0.0.0.0,127.0.0.1,::1
 {% endif %}
 OPTIONS="{{ _options | join(' ') }}"
+{% endif %}
+{% if ansible_distribution | lower == "freebsd" %}
+consul_syslog_output_enable="YES"
+{% endif %}

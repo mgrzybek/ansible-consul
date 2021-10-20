@@ -13,7 +13,3 @@
   - install-yum
   - install-zypper
 
-- name: Install | Directories
-  file: path={{ item }} state=directory owner=consul group=consul
-  with_items:
-  - /var/lib/consul
