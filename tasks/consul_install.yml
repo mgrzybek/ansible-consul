@@ -13,3 +13,9 @@
   - install-yum
   - install-zypper
 
+- name: Install | Install configuration directory
+  when: consul_conf_dir is defined
+  file:
+    path: '{{ consul_conf_dir }}'
+    state: directory
+
