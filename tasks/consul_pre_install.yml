@@ -64,7 +64,7 @@
     - consul_stat.stat.exists == true
     register: consul_hcl
     shell: >
-      awk -F= '/acl_master_token/ {gsub("\"","");gsub(" ","");print $NF}' {{ consul_conf_file }}
+      awk -F"'" '/acl_master_token/ {print $(NF-1)}' {{ consul_conf_file }}
 
   - name: Pre-Install | Set local fact (consul_uuid)
     when:
@@ -90,8 +90,8 @@
     register: consul_hcl
     changed_when: false
     shell: >
-      awk -F= '/encrypt/ {gsub("\"","");gsub(" ","");print $NF}' {{ consul_conf_file }}
-
+      awk -F'"' '/encrypt/ {print $(NF-1)}' {{ consul_conf_file }}
+     
   - name: Pre-Install | Set local fact (consul_encrypt)
     when:
     - consul_stat.stat.exists == true
