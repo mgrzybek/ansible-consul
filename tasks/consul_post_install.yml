@@ -34,7 +34,7 @@
   notify: reload consul
   template:
     src: service.consul.json.j2
-    dest: "{{ consul_conf_dir }}/{{ item.service.name }}.json"
+    dest: '{{ consul_conf_dir }}/{{ item.service.name }}.json'
 
 - name: Post-Install | Telegraf configuration
   when:

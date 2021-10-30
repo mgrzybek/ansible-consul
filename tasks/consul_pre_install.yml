@@ -1,5 +1,3 @@
----
-
 - name: Pre-Install | Test HTTP Proxy
   when:
   - consul_http_proxy is defined
@@ -91,7 +89,7 @@
     changed_when: false
     shell: >
       awk -F'"' '/encrypt/ {print $(NF-1)}' {{ consul_conf_file }}
-     
+
   - name: Pre-Install | Set local fact (consul_encrypt)
     when:
     - consul_stat.stat.exists == true
